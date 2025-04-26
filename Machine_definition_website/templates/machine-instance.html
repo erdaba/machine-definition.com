@@ -1,0 +1,258 @@
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Instance of machine</title>
+        <link rel="shortcut icon" href="{{ url_for('static', filename='images/favicon_machine.ico') }}">
+       <link rel="stylesheet" href="{{ url_for('static', filename='css/machine-instance.css') }}">
+    </head>
+    <body>
+    <div id="menu">
+        <a href="/">Definition of machine</a>
+    </div>
+    <div id="choose-your-machine">
+    <p><strong>Instance of machine of function <code>f</code>:</strong></p>
+    <pre>
+   p = i; while(a) { p = f(p, x); }
+    </pre>
+         Set <code>p</code> and <code>x</code> sizes:        
+         <br>
+        size of <code>p</code>: <input type="number" id="input-size-p" placeholder="size of p" min=1 max=4> <br>
+        size of <code>x</code>: <input type="number" id="input-size-x" placeholder="size of x" min=0 max=4> <br>
+        <button onclick="generateFunctionVariables()">confirm p and x sizes (set domaine f)</button>
+    <!-- checkbox will be used to define the values of the variables x and p -->
+    <div id="checkbox-container"></div>
+    <div id="function-container"></div>
+    </div>
+ <script>
+ 		let x = [];
+		let p = [];
+		let f = [];
+        let a= null;
+        let state_counter=0;
+        let ended=false;
+        
+        function restrictInputToRange(inputId) {
+                    const inputField = document.getElementById(inputId);
+                    if (inputField) {
+                                const minValue = parseInt(inputField.getAttribute('min'), 10);
+                                const maxValue = parseInt(inputField.getAttribute('max'), 10);
+                                inputField.addEventListener('input', () => {
+                                            const value = parseInt(inputField.value, 10);
+                                            if (value < minValue) {
+                                                        inputField.value = minValue; // Reset to the minimum value if it's too small
+                                                    } else if (value > maxValue) {
+                                                                inputField.value = maxValue; // Reset to the maximum value if it's too large
+                                                            }
+                                        });
+                            } else {
+                                        console.error(`Element with ID '${inputId}' not found.`);
+                                    }
+                }
+        restrictInputToRange('input-size-x');
+        restrictInputToRange('input-size-p');
+         // Helper function that creates a checkbox line for a specific variable label and count
+        function createCheckboxLine(label, count) {
+            const line = document.createElement('div');
+            line.innerHTML = `<strong>${label}:</strong> `;
+            for (let i = 0; i < count; i++) {
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.name = `${label}${i}`;
+                checkbox.id = `${label}${i}`;
+                line.appendChild(checkbox);
+            }
+            return line;
+        }
+        // Main function that retrieves input sizes and creates checkbox lines for x and p using the helper function
+        function generateFunctionVariables() {
+            const xSize = parseInt(document.getElementById('input-size-x').value, 10) ;
+            const pSize = parseInt(document.getElementById('input-size-p').value, 10) ;
+            if (!((0<=xSize && xSize<=4) && (1<=pSize && pSize<=4)) || isNaN(xSize) || isNaN(pSize)) {
+            console.log("size of p or x is not set properly");
+            return 1;
+            }
+            const variablesList = [...Array(pSize).keys()].map(i => `p[${i}]`).concat([...Array(xSize).keys()].map(i => `x[${i}]`));
+            const container = document.getElementById('checkbox-container');
+            container.innerHTML = ''; // Clear any previous content
+            
+                 container.innerHTML = `Set the expression of <code>f</code> and <code>a</code>  with <code>!,&&,||</code> and <code>false,true,${variablesList.join(', ')}</code>:<br>`
+            for (let i = 0; i < pSize; i++) {
+                       container.innerHTML +=`<code>p[${i}]</code>=<input type="text" id="expression${i}" placeholder="e.g., p[0] && p[1] || !x[0]"> <br>`; 
+                   }
+            container.innerHTML +=`<code>a</code>=<input type="text" id="a-expression" placeholder="e.g., p[0] && p[1] || !x[0]"> <br>`; 
+            container.innerHTML +=`For state 0, set initial values for x and p :`;
+            container.appendChild(createCheckboxLine('x_values', xSize));
+            container.appendChild(createCheckboxLine('p_values', pSize));
+            container.innerHTML +=`<button onclick="generateMachine()">Generate and Run your machine</button>`;
+        }
+        // Main function to build the machine with the values set for x,p and f.
+        function generateMachine() {
+          ended=false;
+          const container = document.getElementById('function-container');
+          container.innerHTML = ''; // Clear any previous content
+          // Retrieve the sizes for x and p from the inputs
+          const xSize = parseInt(document.getElementById('input-size-x').value, 10) ;
+          const pSize = parseInt(document.getElementById('input-size-p').value, 10) ;
+          // Build the boolean arrays from the checkboxes
+          x=[]
+          p=[]
+          f=[]
+          a=null;
+          // filling x
+          for (let i = 0; i < xSize; i++) {
+                   x.push(document.getElementById(`x_values${i}`).checked);
+               }
+          // filling p
+          for (let i = 0; i < pSize; i++) {
+                   p.push(document.getElementById(`p_values${i}`).checked);
+               }
+          //filling expression array for f
+          const expression =[];
+          for (let i = 0; i < pSize; i++) {
+           expression.push(document.getElementById(`expression${i}`).value);
+           }
+          //build f with expression
+          for (let i = 0; i < expression.length; i++) {
+          f.push(new Function("x", "p", `return (${expression[i]});`));
+          }
+          //filling expression for a
+          const aExpression = document.getElementById('a-expression').value;
+          //build a with a-expression
+          a=new Function("x", "p", `return (${aExpression});`);
+          console.log('value of a(x,p):',a(x,p));
+          if(a(x,p)!==true){
+               container.innerHTML =`a(x,p) is not true machine can't start.`;
+               return 1;
+          }
+          // apply f to x and p then use results to build a truth table
+                 try {
+                          const results = f.map(func => func(x, p));
+                          p=results;
+                          container.appendChild(createCheckboxLine('x_values_when_run', xSize));
+                          container.innerHTML +=`<button onclick="runMachine()">Next state</button>`;
+                          container.innerHTML +=`<div id="run-container"></div>`;
+                          state_counter=1;
+                          let htmlOutput = `<div class="machineState">
+                              state ${state_counter} of the machine
+                              <table border="1">
+                              <thead>
+                              <tr>`;
+                          // Create header cells for each index in the array p
+                          for (let i = 0; i < p.length; i++) {
+                                   htmlOutput += `<th>p[${i}]</th>`;
+                               }
+                          htmlOutput += `</tr>
+                              </thead>
+                              <tbody>
+                              <tr>`;
+                          // Create a single row with all p values as cells
+                          for (let i = 0; i < p.length; i++) {
+                                   htmlOutput += `<td>${p[i]}</td>`;
+                               }
+                          htmlOutput += `</tr>
+                              </tbody>
+                              </table>`;
+                          container2=document.getElementById("run-container");
+                          container2.innerHTML += htmlOutput;
+                          return 0;
+                      } catch (error) {
+                               console.error("Error in the Boolean expression:", error);
+                               return 1;
+                           }
+             }
+     function runMachine() {
+              state_counter=state_counter+1;
+              container=document.getElementById("run-container");
+              console.log('entered runMachine');
+              x = [...document.querySelectorAll('[id^="x_values_when_run"]')].map(checkbox => checkbox.checked);
+              if(true === a(x,p)&& ended ===false){
+                       console.log('x:',x);
+                       console.log('p:',p);
+                       p = f.map(func => func(x, p));
+                       let htmlOutput = `<div class="machineState">
+                           state ${state_counter} of the machine
+                           <table border="1">
+                           <thead>
+                           <tr>`;
+                       // Create header cells for each index in the array p
+                       for (let i = 0; i < p.length; i++) {
+                                htmlOutput += `<th>p[${i}]</th>`;
+                            }
+                       htmlOutput += `</tr>
+                           </thead>
+                           <tbody>
+                           <tr>`;
+                       // Create a single row with all p values as cells
+                       for (let i = 0; i < p.length; i++) {
+                                htmlOutput += `<td>${p[i]}</td>`;
+                            }
+                       htmlOutput += `</tr>
+                           </tbody>
+                           </table>
+                           </div>`;
+                       container.innerHTML += htmlOutput;
+                       console.log('p+:',p);
+                   }
+              else{    if(ended===false){
+                       console.log(`enter if(ended===false)`);
+                       container.innerHTML += `Machine ended or vanished. Generate another machine.`;
+                       }
+                       console.log('machine ended');
+                       ended=true;
+                       return 0;
+                   }
+          }
+ </script>
+  <footer>
+     <p>Source code and contact in <a href="https://github.com/erdaba" target="_blank">github</a>.</p>
+ </footer>
+
+</body>
+<!--
+     Warning! In the definition there is a while loop running by itself the same way Time keeps going in real life.
+     For practical purpose we made the next state triggered by a button click in order to make the simulation readable. 
+
+     Improvements:
+
+     We need a truth table that will display the whole function.
+     The actual state can be represented by highlighting the row of the actual state.
+     <div id="truth-table-machine">
+     <h3>Truth Table of the machine</h3>
+     </div>
+
+     For the graph we need to display the state of p as vertices.
+     An the edges will be labelled with the choices for x.
+     The function 'a' will select the edges that will be available.
+     We can build any graph with that formal definition of machine.
+     For graphs the off state of a machine is a state among others,
+     this is not to be confused with the a()=false this means the machine does not exist anymore.
+     According our graph model it would be like chosing an edge that reaches an impossible state or impossible transition.
+     <div id="graph-machine">
+     <h3>Graph of the machine</h3>
+     </div>
+     For the graph we need to display the state of p as vertices.
+     An the edges will be labelled with the choices for x.
+     The function 'a' will select the edges that will be available.
+     Optionally on another page.
+     We can introduce graph algorithms (BFS, etc...)
+     <div id="find-path">
+     <h3>Find a path between two state</h3>
+     </div>
+     We may need a link to a page which will generate a random machine
+     that the user will need to find its function. 
+
+     The representation of real machine in real life,
+     requires us to take into account the Universe machine with its function which applies to all matter. 
+     The real machine is just matter that is modified by the function of the Universe machine.
+     The machine of the Universe has function a()=true, and remains active.
+     Therefore the real representation of a machine is not a function but it is a state p in the Universe machine.
+     Therefore if a() does not remain true we have an abstract machine.
+
+     The continuity in a computer only exist as an illusition made with "continuous" operations(+,-,*,...).
+     <div id="continuous-machine">
+     <h3>machine with a function of continuous operators</h3>
+     </div>
+-->
+
+</html>

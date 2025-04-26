@@ -1,0 +1,52 @@
+#machine-definition {
+    border: 1px solid #ddd;
+    padding: 10px;
+    background-color: #f9f9f9;
+    margin-left:auto;
+    margin-right:auto;
+    max-width: 720px;
+}
+
+#machine-definition h2 {
+    font-size: 1.5em;
+    margin-bottom: 10px;
+}
+
+#machine-definition pre {
+    background-color: #e8e8e8;
+    border: 1px solid #ccc;
+    padding: 10px;
+    font-family: monospace;
+    font-size: 1.2em;
+}
+
+#machine-definition ul {
+    margin-left: 20px;
+    padding-left: 20px;
+    list-style-type: disc;
+}
+
+#machine-definition code {
+    font-family: monospace;
+    font-size: 1.2em;
+    color: #005a8f;
+}
+
+footer {
+    text-align: center;
+    font-size: 10px;
+    color: black;
+    padding: 10px;
+    background-color: #ffffff;
+    bottom: 0;
+    width: 100%;
+  }
+#menu {border: 1px solid #ddd;
+    padding: 10px;
+    background-color: #f9f9f9;
+    margin-left:auto;
+    margin-right:auto;
+    margin-top:20px;
+    margin-bottom:20px;
+    max-width: 300px;
+}
