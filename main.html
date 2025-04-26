@@ -1,0 +1,43 @@
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Definition of machine</title>
+        <link rel="shortcut icon" href="{{ url_for('static', filename='images/favicon_machine.ico') }}">
+       <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    </head>
+    <body>
+    <div id="machine-definition">
+    <h2>The formal definition of any machine</h2>
+    <p><strong>The general formula of any machine of function <code>f</code> is:</strong></p>
+    <pre>
+   p = i; while(a) { p = f(p, x); }
+    </pre>
+    <ul>
+        <li><code>f</code>: function of the machine</li>
+        <li><code>p</code>: present state</li>
+        <li><code>x</code>: unpredictable input</li>
+        <li><code>i</code>: initial state</li>
+        <li><code>a</code>: activated</li>
+    </ul>
+    <p>When <code>a = 0</code>, the machine ends working.<br>
+    The state of the present state <code>p</code> represents the variables which are part of the machine.<br>
+    <code>a</code> is either 1 or the result of a truth function of <code>p</code> and <code>x</code>.<br>
+    At start, the initial state <code>i</code> applies.<br>
+    <code>x</code> and <code>p</code> have bound sizes and form the domain of the function <code>f</code>.<br>
+    <code>f(p, x)</code> is the next state which becomes the present state <code>p</code>. <br>
+    <code>f</code>, <code>i</code> and <code>a</code> are sufficient to define the machine. 
+    </p>
+    </div>
+    <div id="menu">
+        <a href="/machine-instance">Instance of machine</a>
+    </div>
+    <footer>
+     <p>Written by Erdogan Abasikeles &copy; November 2024.</p>
+     <p>Website in construction since April 13 2025.</p>
+    </footer>
+    <script>
+    </script>
+    </body>
+</html>
+
