@@ -191,12 +191,12 @@
                            </tbody>
                            </table>
                            </div>`;
-                       container.innerHTML += htmlOutput;
+                       container.innerHTML = htmlOutput + container.innerHTML;
                        console.log('p+:',p);
                    }
               else{    if(ended===false){
                        console.log(`enter if(ended===false)`);
-                       container.innerHTML += `Machine ended or vanished. Generate another machine.`;
+                       container.innerHTML = `Machine ended or vanished. Generate another machine.` + container.innerHTML;
                        }
                        console.log('machine ended');
                        ended=true;
