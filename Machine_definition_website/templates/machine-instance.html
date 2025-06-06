@@ -107,6 +107,7 @@
           for (let i = 0; i < pSize; i++) {
                    p.push(document.getElementById(`p_values${i}`).checked);
                }
+	  try{
           //filling expression array for f
           const expression =[];
           for (let i = 0; i < pSize; i++) {
@@ -121,12 +122,8 @@
           //build a with a-expression
           a=new Function("x", "p", `return (${aExpression});`);
           console.log('value of a(x,p):',a(x,p));
-          if(a(x,p)!==true){
-               container.innerHTML =`a(x,p) is not true machine can't start.`;
-               return 1;
-          }
+          
           // apply f to x and p then use results to build a truth table
-                 try {
                           const results = f.map(func => func(x, p));
                           p=results;
                           container.appendChild(createCheckboxLine('x_values_when_run', xSize));
@@ -155,9 +152,14 @@
                               </table>`;
                           container2=document.getElementById("run-container");
                           container2.innerHTML += htmlOutput;
+		          if(a(x,p)!==true){
+                              container.innerHTML =`a(x,p) is not true machine can't start.`;
+                              return 1;
+                         }
                           return 0;
                       } catch (error) {
-                               console.error("Error in the Boolean expression:", error);
+                               container.innerHTML = "There is an invalid expression, machine can't start.";
+                               console.error("Error in the Boolean expression:", error); 
                                return 1;
                            }
              }
